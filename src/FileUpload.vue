@@ -526,12 +526,14 @@ export default {
         let items = []
         for (let i = 0; i < dataTransfer.items.length; i++) {
           let item = dataTransfer.items[i]
-          if (item.getAsEntry) {
+          if (item.getAsFile) {
+            item = item.getAsFile()
+          } else if (item.getAsEntry) {
             item = item.getAsEntry() || item.getAsFile()
           } else if (item.webkitGetAsEntry) {
             item = item.webkitGetAsEntry() || item.getAsFile()
           } else {
-            item = item.getAsFile()
+            item = null
           }
           if (item) {
             items.push(item)
@@ -582,6 +584,15 @@ export default {
               }
             ])
           })
+        } else if (entry instanceof File) {
+          resolve([
+            {
+              size: entry.size,
+              name: path + entry.name,
+              type: entry.type,
+              file: entry,
+            }
+          ])
         } else if (entry.isDirectory && this.dropDirectory) {
           let files = []
           let dirReader = entry.createReader()

@@ -1,7 +1,7 @@
 /*!
  * Name: vue-upload-component
- * Version: 2.8.21
- * Author: Marco Lang
+ * Version: 2.8.23
+ * Author: LianYue
  */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1221,12 +1221,14 @@
           var items = [];
           for (var i = 0; i < dataTransfer.items.length; i++) {
             var item = dataTransfer.items[i];
-            if (item.getAsEntry) {
+            if (item.getAsFile) {
+              item = item.getAsFile();
+            } else if (item.getAsEntry) {
               item = item.getAsEntry() || item.getAsFile();
             } else if (item.webkitGetAsEntry) {
               item = item.webkitGetAsEntry() || item.getAsFile();
             } else {
-              item = item.getAsFile();
+              item = null;
             }
             if (item) {
               items.push(item);
@@ -1279,6 +1281,13 @@
                 file: file
               }]);
             });
+          } else if (entry instanceof File) {
+            resolve([{
+              size: entry.size,
+              name: path + entry.name,
+              type: entry.type,
+              file: entry
+            }]);
           } else if (entry.isDirectory && _this3.dropDirectory) {
             var files = [];
             var dirReader = entry.createReader();
