@@ -1224,9 +1224,9 @@
             if (item.getAsFile) {
               item = item.getAsFile();
             } else if (item.getAsEntry) {
-              item = item.getAsEntry() || item.getAsFile();
+              item = item.getAsEntry();
             } else if (item.webkitGetAsEntry) {
-              item = item.webkitGetAsEntry() || item.getAsFile();
+              item = item.webkitGetAsEntry();
             } else {
               item = null;
             }
@@ -1272,7 +1272,14 @@
         var path = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
 
         return new Promise(function (resolve, reject) {
-          if (entry.isFile) {
+          if (entry instanceof File) {
+            resolve([{
+              size: entry.size,
+              name: path + entry.name,
+              type: entry.type,
+              file: entry
+            }]);
+          } else if (entry.isFile) {
             entry.file(function (file) {
               resolve([{
                 size: file.size,
@@ -1281,13 +1288,6 @@
                 file: file
               }]);
             });
-          } else if (entry instanceof File) {
-            resolve([{
-              size: entry.size,
-              name: path + entry.name,
-              type: entry.type,
-              file: entry
-            }]);
           } else if (entry.isDirectory && _this3.dropDirectory) {
             var files = [];
             var dirReader = entry.createReader();

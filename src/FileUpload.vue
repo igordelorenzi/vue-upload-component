@@ -529,9 +529,9 @@ export default {
           if (item.getAsFile) {
             item = item.getAsFile()
           } else if (item.getAsEntry) {
-            item = item.getAsEntry() || item.getAsFile()
+            item = item.getAsEntry()
           } else if (item.webkitGetAsEntry) {
-            item = item.webkitGetAsEntry() || item.getAsFile()
+            item = item.webkitGetAsEntry()
           } else {
             item = null
           }
@@ -573,7 +573,16 @@ export default {
     // 获得 entry
     getEntry(entry, path = '') {
       return new Promise((resolve, reject) => {
-        if (entry.isFile) {
+        if (entry instanceof File) {
+          resolve([
+            {
+              size: entry.size,
+              name: path + entry.name,
+              type: entry.type,
+              file: entry,
+            }
+          ])
+        } else if (entry.isFile) {
           entry.file(function (file) {
             resolve([
               {
@@ -584,15 +593,6 @@ export default {
               }
             ])
           })
-        } else if (entry instanceof File) {
-          resolve([
-            {
-              size: entry.size,
-              name: path + entry.name,
-              type: entry.type,
-              file: entry,
-            }
-          ])
         } else if (entry.isDirectory && this.dropDirectory) {
           let files = []
           let dirReader = entry.createReader()
